@@ -7,7 +7,6 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // Routes
-
 app.get('/api/wpengine', function(req, res) {
   const authorization = 'Basic ' + Buffer.from(process.env.WPENGINE_AUTH).toString('base64');
   const wpengineInstalls = process.env.WPENGINE_INSTALLS;
@@ -20,10 +19,9 @@ app.get('/api/wpengine', function(req, res) {
         method: 'GET',
         headers: {
           'Authorization': authorization,
-        }
+        } 
       });
       responseBody = await wpengineResponse.json();
-      console.log(responseBody);
       res.send(responseBody);
     } catch (error) {
       console.log(error);
