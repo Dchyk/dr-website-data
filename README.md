@@ -14,4 +14,5 @@ then saves the response data in state and passes it down as props to child compo
 ## Next Steps
 - Add authorization
 - Compile data into single page dashboard
-- Add search/filter functionality 
+- Add search/filter functionality
+- Add unit and integration tests
