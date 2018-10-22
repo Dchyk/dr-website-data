@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { WPEngineSite } from './WPEngineSite';
 
 export const WPEngineSiteList = (props) => {
@@ -16,7 +16,8 @@ export const WPEngineSiteList = (props) => {
         <tbody>
         {props.installs.map((install) => {
         return (
-          <WPEngineSite 
+          <WPEngineSite
+            key={install.id}
             id={install.id}
             name={install.name}
             cname={install.cname}
