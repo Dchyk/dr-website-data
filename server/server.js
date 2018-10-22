@@ -8,7 +8,7 @@ const port = process.env.PORT || 5000;
 
 // Routes
 
-app.get('/api/wpengine', async function(req, res) {
+app.get('/api/wpengine', function(req, res) {
   const authorization = 'Basic ' + Buffer.from(process.env.WPENGINE_AUTH).toString('base64');
   const wpengineInstalls = process.env.WPENGINE_INSTALLS;
 
@@ -40,7 +40,7 @@ app.get('/api/wpengine', async function(req, res) {
   getWPengineData(wpengineInstalls);
 });
 
-app.get('/api/codebase', async function(req, res) {
+app.get('/api/codebase', function(req, res) {
   const codebaseURL = process.env.CODEBASE_URL.concat('?key=', process.env.CODEBASE_API_KEY);
 
   let responseBody = 'Nothing returned.'; 
