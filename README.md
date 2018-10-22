@@ -1,16 +1,17 @@
 # DR Website Data
 
-## Backend
+## Server
 - Node.js, using an Express server to define API routes that the client can call
 - Each route returns the response from an external API request
 - - Codebase: a Wordpress REST API endpoint that exposes theme data returned from ongoing curl requests to our websites
-- - WPEngine: the WPEngine API (beta), exposes a variety of account data 
+- - WPEngine: the WPEngine API (beta), exposes a limited amount of account data 
 
-## Frontend
-- React components (initially bootstrapped via create-react-app)
-- Top level components query the backend server via fetch requests to the Express endpoints defined in server.js (for now),
-then save the response data in state and pass it down as props to child components
+## Client
+- React components
+- Top level component queries the backend server via fetch requests to the Express endpoints defined in server.js (for now),
+then saves the response data in state and passes it down as props to child components
 
-## Next
+## Next Steps
 - Add authorization
-- Query APIs ony once when main component mounts, save all data in session or similar, instead of each time a component mounts
+- Compile data into single page dashboard
+- Add search/filter functionality 
