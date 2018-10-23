@@ -1,12 +1,13 @@
 const express = require('express');
 const fetch = require('node-fetch');
+const path = require('path');
 
 require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Routes
+// Routes for API calls
 app.get('/api/wpengine', function(req, res) {
   const authorization = 'Basic ' + Buffer.from(process.env.WPENGINE_AUTH).toString('base64');
   const wpengineInstalls = process.env.WPENGINE_INSTALLS;
@@ -65,5 +66,15 @@ app.get('/api/codebase', function(req, res) {
 app.get('/api/hello', (req, res) => {
   res.send({ express: 'Hello from Express!' });
 });
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'client/build')));
+
+  // React routing - return all non-API requests to React
+  app.get('*', function(req, res) {
+    res.sendFile(path.join(__dirname, 'client/build',
+    'index.html'));
+  });
+}
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
