@@ -63,10 +63,6 @@ app.get('/api/codebase', function(req, res) {
   getCodebaseData(codebaseURL);
 });
 
-app.get('/api/hello', (req, res) => {
-  res.send({ express: 'Hello from Express!' });
-});
-
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'client/build')));
 
