@@ -4,6 +4,16 @@ body {
   font-family: sans-serif;
 }
 
+form {
+  margin: 20px auto;
+}
+
+input[type=text] {
+  font-size: 16px;
+  padding: 10px 6px;
+  width: 500px;
+}
+
 table {
   margin: 0 auto;
 }

@@ -68,7 +68,6 @@ class App extends Component {
     return (
       <div className="App">
         <Header />
-        <SearchBar />
 
         <form>
           <input type="text" name="filter" id="filter" placeholder="Search" onChange={this.handleFilter} />
