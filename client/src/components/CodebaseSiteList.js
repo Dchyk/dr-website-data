@@ -65,6 +65,9 @@ import React, { Component } from 'react';
 // }
 
 const CodebaseSiteList = (props) => {
+  const siteList = props.siteData.actively_reporting_sites;
+  const filteredSites = siteList.filter((site) => site.url.includes(props.searchTerm));
+  
   return (
     <div className="limiter">
       <table cellSpacing="0">
@@ -78,7 +81,7 @@ const CodebaseSiteList = (props) => {
             </tr>
         </thead>
         <tbody>
-        {props.siteData.actively_reporting_sites.map((site) => {
+        {filteredSites.map((site) => {
         return (
           <tr key={site.id}>
             <td>{site.url}</td>

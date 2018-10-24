@@ -63,6 +63,42 @@ app.get('/api/codebase', function(req, res) {
   getCodebaseData(codebaseURL);
 });
 
+app.get('/api/cloudflare', function(req, res) {
+  const cloudflareURL = process.env.CLOUDFLARE_GET_ALL_ZONES;
+  const email = process.env.CLOUDFLARE_EMAIL;
+  const authkey = process.env.CLOUDFLARE_API_KEY;
+  
+  let responseBody = 'Nothing returned.';
+
+  const getCloudflareZones = async url => {
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        withCredentials: true,
+        credentials: 'include',
+        headers: {
+          'X-Auth-Email': email,
+          'X-Auth-Key': authkey,
+        }
+      });
+
+      responseBody = await response.json();
+      console.log("cloudflare response: ", responseBody);
+      res.send(responseBody);
+    } catch(error) {
+      res.send({
+        express: 
+          {
+            'Error': 'Could not connect to API.',
+            'Error Details': error,
+          }
+      });
+    }
+  }
+
+  getCloudflareZones(cloudflareURL);
+});
+
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'client/build')));
 
