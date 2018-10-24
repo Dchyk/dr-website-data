@@ -99,6 +99,35 @@ app.get('/api/cloudflare', function(req, res) {
   getCloudflareZones(cloudflareURL);
 });
 
+app.get('/api/wp-latest-post', function(req, res) {
+  // Pass the domain in as a URL param in the request
+  const domain = req.param('domain');
+
+  // Then build the full request path
+  const requestPath = domain.concat('/wp-json/wp/v2/posts?per_page=1');
+
+  let responseBody = 'Nothing returned.';
+
+  const getLatestPost = async url => {
+    try {
+      const response = await fetch(url);
+      responseBody = await response.json();
+      console.log("cloudflare response: ", responseBody);
+      res.send(responseBody);
+    } catch(error) {
+      res.send({
+        express: 
+          {
+            'Error': 'Could not connect to API.',
+            'Error Details': error,
+          }
+      });
+    }
+  }
+
+  getLatestPost(requestPath);
+});
+
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'client/build')));
 

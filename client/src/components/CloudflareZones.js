@@ -1,37 +1,37 @@
 import React, { Component } from 'react';
+import Collapsible from 'react-collapsible';
 
 class CloudflareZones extends Component {
   constructor(props) {
     super(props);
 
-
+    this.state = {
+      latestPost: null,
+    }
   }
 
   render() {
     return (
-      <div className="limiter">
-        <table cellSpacing="0">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Original DNS Host</th>
-              <th>CF Nameserver 1</th>
-              <th>CF Nameserver 2</th>
-            </tr>
-          </thead>
-          <tbody>
-          {this.props.zones.map((result) => {
-            return (
-              <tr key={result.id}>
-                <td>{result.name}</td>
-                <td>{result.original_dnshost}</td>
-                <td>{result.name_servers[0]}</td>
-                <td>{result.name_servers[1]}</td>
-              </tr>
-            );
-            })}
-          </tbody>
-        </table>
+      <div className="container">
+        {this.props.zones.map((result) => {
+          return (
+            // Render a new Site component inside of each Collapsible component, passing in props.
+            // Inside of the Site component, call APIs specific to that site - for example, build a request
+            // to WP json to get latest post data. 
+            <Collapsible 
+              trigger={<div>
+                          <h2>{result.name}</h2>
+                          <div className="plus-sign">+</div>
+                        </div>}
+              key={result.id}          
+            >
+              <p>{result.name}</p>
+              <p>{result.original_dnshost}</p>
+              <p>{result.name_servers[0]}</p>
+              <p>{result.name_servers[1]}</p>
+            </Collapsible>
+          );
+        })}
       </div>
     );
   }
