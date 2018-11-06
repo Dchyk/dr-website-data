@@ -25,19 +25,19 @@ class CloudflareZones extends Component {
                         </div>}
               key={result.id}          
             >
-              <div class="flex-row">
-                <div class="data-box">
-                  <img class="icon" src="images/dr-logo.png" />
+              <div className="flex-row">
+                <div className="data-box">
+                  <img className="icon" src="images/dr-logo.png" alt="" />
                   <h3>Codebase Data</h3>
                 </div>
 
-                <div class="data-box">
-                  <img class="icon" src="images/wp-engine-logo-75.png" />
+                <div className="data-box">
+                  <img className="icon" src="images/wp-engine-logo-75.png" alt="" />
                   <h3>WPEngine</h3>
                 </div>
 
-                <div class="data-box">
-                  <img class="icon" src="images/cloudflare-logo.png" />
+                <div className="data-box">
+                  <img className="icon" src="images/cloudflare-logo.png" alt="" />
                   <h3>Cloudflare & DNS Info</h3>
                   <p><span>Name:</span> {result.name}</p>
                   <p>Original DNS Host: {result.original_dnshost}</p>
