@@ -3,7 +3,7 @@ import './App.css';
 import { Header } from './components/Header';
 import SearchBar from './components/SearchBar';
 import CodebaseSiteList from './components/CodebaseSiteList';
-import CloudflareZones from './components/CloudflareZones';
+import SiteDataList from './components/SiteDataList';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import WPEngineData from './components/WPEngineData';
 import { callApi } from './utils/callApi';
@@ -31,15 +31,98 @@ class App extends Component {
     });
   }
 
+  sortState() {
+    let newState = {};
+    const NA = 'N/A'
+    const regex = /http[s?]:\/\/www./;
+    const codebaseDefaultFields = {
+      codebaseVersion: null,
+      dsName: null, 
+      dsVersion: null, 
+      lastCodebaseReport: null,
+    };
+    const WPEngineDefaultFields = {
+      id: null,
+      cname: null,
+      installName: null,
+      phpVersion: null,
+      primaryDomain: null,
+    };
+    const cloudflareDefaultFields = {
+      id: null, 
+      zoneName: null,
+      OriginalDNS: null, 
+      nameServer1: null,
+      nameServer2: null,
+    }
+
+    // Translate all the API data in state into a nice JS formatted Object
+
+    // Starting with the Cloudflare, because it is the source of truth for the most complete 
+    // listing of all our sites
+    this.state.cloudflareZones.forEach(zone => {
+      newState[zone.name] = {
+        codebase: codebaseDefaultFields,
+        WPENgine: WPEngineDefaultFields,
+        cloudflareZones: {
+          id: zone.id,
+          zoneName: zone.name,
+          originalDNS: zone.original_dnshost,
+          nameServer1: zone.name_servers[0],
+          nameServer2: zone.name_servers[1],
+        }
+      };
+    });
+
+    // site.url should match the name keys in the newState Object.
+    // If site.url doesn't exist, it means this site is not in Cloudflare and is thus not a live site.
+    // In that case, we'll just add null data to a new entry under that site name for later reference.
+    this.state.codebaseSiteData.actively_reporting_sites.forEach(site => {
+      if (!newState[site.url]) {
+        newState[site.url] = {
+          codebase: codebaseDefaultFields,
+          WPENgine: WPEngineDefaultFields,
+          cloudflareZones: cloudflareDefaultFields,
+        };
+      }
+
+      newState[site.url].codebase.codebaseVersion = site.cb_v || NA;
+      newState[site.url].codebase.dsName = site.ds_name || NA;
+      newState[site.url].codebase.dsVersion = site.ds_v || NA;
+      newState[site.url].codebase.lastCodebaseReport = site.last_updated || NA;
+    });
+
+    // this.state.WPEngineInstalls.forEach(site => {
+    //   const strippedDomain = site.primary_domain.replace(regex, '') || 'Not Set';
+      
+    //   if (strippedDomain !== 'Not Set') {
+    //     newState[strippedDomain].WPengine
+    //   }
+    // });
+
+    return newState;
+  }
+
   componentDidMount() {
     callApi('/api/wpengine')
     .then(res => this.setState({WPEngineInstalls: res.results}))
     .catch(err => console.log(err));
 
+
     callApi('/api/codebase')
     .then(responseData => this.setState({
       codebaseSiteData: {
-        actively_reporting_sites: responseData.actively_reporting_sites,
+        actively_reporting_sites: responseData.actively_reporting_sites.map(site => {
+          return ({
+            cb_v: site.cb_v,
+            ds_name: site.ds_name,
+            ds_v: site.ds_v,
+            id: site.id,
+            last_updated: site.last_updated,
+            // Remove the protocol from the url, leaving only the domain
+            url: site.url.replace(/http[s]?:\/\/(www.)?/i, '')
+          });
+        }),
         not_actively_reporting_sites: responseData.not_actively_reporting_sites,
       },
     }))
@@ -48,6 +131,11 @@ class App extends Component {
     callApi('/api/cloudflare')
     .then(res => this.setState({cloudflareZones: res.result}))
     .catch(err => console.log(err));
+
+  }
+
+  componentDidUpdate() {
+    console.log(this.sortState());
   }
 
   render() {
@@ -74,7 +162,12 @@ class App extends Component {
           </TabPanel>
 
           <TabPanel>
-            <CloudflareZones zones={this.state.cloudflareZones}/>
+            <SiteDataList 
+              zones={this.state.cloudflareZones}
+              codebaseSiteData={this.state.codebaseSiteData}
+              wpengineData={this.state.WPEngineInstalls}
+              searchTerm={this.state.searchTerm}
+            />
           </TabPanel>
 
           <TabPanel>

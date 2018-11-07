@@ -39,6 +39,14 @@ input[type=text] {
   justify-content: space-between;
 }
 
+.Collapsible:hover > .Collapsible__trigger.is-closed {
+  background-color:  rgba(255, 144, 22, 0.2);
+}
+
+.Collapsible:hover > .Collapsible__trigger.is-open {
+  background-color:  #f6f6f6;
+}
+
 .Collapsible__trigger div h2 {
   text-align: left;
   display: inline;
