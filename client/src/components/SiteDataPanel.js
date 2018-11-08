@@ -7,31 +7,24 @@ import CloudflareDataBox from './CloudflareDataBox';
 class SiteDataPanel extends Component {
   constructor(props) {
     super(props);
-
-
-  }
-
-  handleClick = () => {
-    this.className = 'open'; 
   }
 
   render() {
+    const siteName = this.props.siteName;
     const siteData = this.props.siteData;
-    const codebaseData = this.props.codebaseData;
 
     return (
       <Collapsible
         trigger={<div>
-                    <h2>{siteData.name}</h2>
+                    <h2>{siteName}</h2>
                     <div className="plus-sign">+</div>
                   </div>}
-        onClick={this.handleClick}
         key={siteData.id}          
         >
         <div className="flex-row">
-          <CodebaseDataBox />
-          <WPEngineDataBox />
-          <CloudflareDataBox siteData={siteData}/>
+          <CodebaseDataBox codebaseData={siteData.codebase} />
+          <WPEngineDataBox installData={siteData.WPEngine} />
+          <CloudflareDataBox zoneData={siteData.cloudflareZones}/>
         </div>
       </Collapsible>
     );

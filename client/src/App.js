@@ -19,7 +19,10 @@ class App extends Component {
         not_actively_reporting_sites: [],
       },
       WPEngineInstalls: [],
+      WPEngineInstalls2: [],
+      WPEngineInstalls3: [],
       cloudflareZones: [],
+      sortedOrganizedState: {},
     }
 
     this.handleFilter = this.handleFilter.bind(this);
@@ -34,7 +37,7 @@ class App extends Component {
   sortState() {
     let newState = {};
     const NA = 'N/A'
-    const regex = /http[s?]:\/\/www./;
+    const regex = /www./;
     const codebaseDefaultFields = {
       codebaseVersion: null,
       dsName: null, 
@@ -51,7 +54,7 @@ class App extends Component {
     const cloudflareDefaultFields = {
       id: null, 
       zoneName: null,
-      OriginalDNS: null, 
+      originalDNS: null, 
       nameServer1: null,
       nameServer2: null,
     }
@@ -63,7 +66,7 @@ class App extends Component {
     this.state.cloudflareZones.forEach(zone => {
       newState[zone.name] = {
         codebase: codebaseDefaultFields,
-        WPENgine: WPEngineDefaultFields,
+        WPEngine: WPEngineDefaultFields,
         cloudflareZones: {
           id: zone.id,
           zoneName: zone.name,
@@ -81,33 +84,60 @@ class App extends Component {
       if (!newState[site.url]) {
         newState[site.url] = {
           codebase: codebaseDefaultFields,
-          WPENgine: WPEngineDefaultFields,
+          WPEngine: WPEngineDefaultFields,
           cloudflareZones: cloudflareDefaultFields,
         };
       }
 
-      newState[site.url].codebase.codebaseVersion = site.cb_v || NA;
-      newState[site.url].codebase.dsName = site.ds_name || NA;
-      newState[site.url].codebase.dsVersion = site.ds_v || NA;
-      newState[site.url].codebase.lastCodebaseReport = site.last_updated || NA;
+      newState[site.url].codebase = {
+        codebaseVersion: site.cb_v,
+        dsName: site.ds_name,
+        dsVersion: site.ds_v,
+        lastCodebaseReport: site.last_updated,
+      }
     });
 
-    // this.state.WPEngineInstalls.forEach(site => {
-    //   const strippedDomain = site.primary_domain.replace(regex, '') || 'Not Set';
+    this.state.WPEngineInstalls.forEach(site => {
+      const strippedDomain = site.primary_domain.replace(regex, '');
       
-    //   if (strippedDomain !== 'Not Set') {
-    //     newState[strippedDomain].WPengine
-    //   }
-    // });
+      if (newState[strippedDomain]) {
+        newState[strippedDomain].WPEngine = {
+          id: site.id,
+          cname: site.cname,
+          installName: site.name,
+          phpVersion: site.php_version,
+          primaryDomain: site.primary_domain,
+        }
+      }
+    });
 
     return newState;
   }
 
   componentDidMount() {
-    callApi('/api/wpengine')
-    .then(res => this.setState({WPEngineInstalls: res.results}))
+
+    callApi('/api/cloudflare')
+    .then(res => this.setState({cloudflareZones: res.result}))
     .catch(err => console.log(err));
 
+    // This approach makes 3 requests, passing an offset parameter so that we can get more than 100 
+    // results in the response. Using separate containers to hold the result arrays  
+    callApi('/api/wpengine/0')
+    .then(res => this.setState({WPEngineInstalls: res.results}))
+    .catch(err => console.log(err))
+    .then(callApi('/api/wpengine/100') 
+          .then(res => this.setState({WPEngineInstalls2: res.results}))
+          .catch(err => console.log(err))
+            .then(callApi('/api/wpengine/200') 
+              .then(res => this.setState({WPEngineInstalls3: res.results}))
+              .catch(err => console.log(err))
+            )
+    )
+    .catch(err => console.log(err))
+    .then(() => {
+      const allWPengineInstalls = this.state.WPEngineInstalls.concat(this.state.WPEngineInstalls2, this.state.WPEngineInstalls3);
+      this.setState({WPEngineInstalls: allWPengineInstalls});
+    });
 
     callApi('/api/codebase')
     .then(responseData => this.setState({
@@ -127,18 +157,21 @@ class App extends Component {
       },
     }))
     .catch(error => console.log(error));
-
-    callApi('/api/cloudflare')
-    .then(res => this.setState({cloudflareZones: res.result}))
-    .catch(err => console.log(err));
-
   }
 
   componentDidUpdate() {
-    console.log(this.sortState());
+    // const sortedOrganizedState = this.sortState();
+
+    // this.setState({sortedOrganizedState: sortedOrganizedState});
+
+    // // console.log(this.sortState());
   }
 
   render() {
+
+    // Organize the state so it can be passed down as props
+    const dashBoardData = this.sortState();
+ 
     return (
       <div className="App">
         <Header />
@@ -147,35 +180,37 @@ class App extends Component {
 
         <Tabs>
           <TabList>
+            <Tab>All Site Data</Tab>
             <Tab>Codebase Data</Tab>
-            <Tab>Cloudflare Zones</Tab>
+            
             <Tab>Non-codebase Data</Tab>
             <Tab>WPEngine Data</Tab>
           </TabList>
-        
-          <TabPanel>
-            <h2>Actively Reporting Sites</h2>
-            <CodebaseSiteList 
-              siteData={this.state.codebaseSiteData}
-              searchTerm={this.state.searchTerm} 
+
+            <TabPanel>
+              <SiteDataList 
+                allSiteData={dashBoardData}
+                searchTerm={this.state.searchTerm}
               />
-          </TabPanel>
+            </TabPanel>
+          
+            <TabPanel>
+              <h2>Actively Reporting Sites</h2>
+              <CodebaseSiteList 
+                siteData={this.state.codebaseSiteData}
+                searchTerm={this.state.searchTerm} 
+                />
+            </TabPanel>
 
-          <TabPanel>
-            <SiteDataList 
-              zones={this.state.cloudflareZones}
-              codebaseSiteData={this.state.codebaseSiteData}
-              wpengineData={this.state.WPEngineInstalls}
-              searchTerm={this.state.searchTerm}
-            />
-          </TabPanel>
+            
 
-          <TabPanel>
-            <h2>Non-code base sites - Ads Next Framework, etc.</h2>
-          </TabPanel>
-          <TabPanel>
-            <WPEngineData WPEngineSiteData={this.state.WPEngineInstalls} />
-          </TabPanel>
+            <TabPanel>
+              <h2>Non-code base sites - Ads Next Framework, etc.</h2>
+            </TabPanel>
+
+            <TabPanel>
+              <WPEngineData WPEngineSiteData={this.state.WPEngineInstalls} />
+            </TabPanel>
       
         </Tabs>
       </div>

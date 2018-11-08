@@ -1,16 +1,32 @@
 import React from 'react';
 
 const CloudflareDataBox = (props) => {
-  const siteData = props.siteData;
+  const zoneData = props.zoneData;
 
   return (
     <div className="data-box">
       <img className="icon" src="images/cloudflare-logo.png" alt="" />
       <h3>Cloudflare & DNS Info</h3>
-      <p><span>Name:</span> {siteData.name}</p>
-      <p>Original DNS Host: {siteData.original_dnshost}</p>
-      <p>Cloudflare Nameserver 1: {siteData.name_servers[0]}</p>
-      <p>Cloudflare Nameserver 2: {siteData.name_servers[1]}</p>
+      <table>
+        <tbody>
+          <tr>
+            <th scope="row">Zone Name</th>
+            <td>{zoneData.zoneName}</td>
+          </tr>
+          <tr>
+            <th scope="row">Original DNS Host</th>
+            <td>{zoneData.originalDNS}</td>
+          </tr>
+          <tr>
+            <th scope="row">Cloudflare Nameserver 1</th>
+            <td>{zoneData.nameServer1}</td>
+          </tr>
+          <tr>
+            <th scope="row">Cloudflare Nameserver 2</th>
+            <td>{zoneData.nameServer2}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   )
 }

@@ -11,16 +11,18 @@ class SiteDataList extends Component {
   }
 
   render() {
-    const siteList = this.props.zones;
-    const filteredSiteList = siteList.filter((site) => site.name.includes(this.props.searchTerm));
+    const siteList = Object.keys(this.props.allSiteData);
+    const filteredSiteList = siteList.filter((siteName) => siteName.includes(this.props.searchTerm));
 
     return (
       <div className="container">
-        {filteredSiteList.map((filteredSite) => {
+
+        {filteredSiteList.map((filteredSite, index) => {
           return (
-            <SiteDataPanel 
-              siteData={filteredSite} 
-              key={filteredSite.id} 
+            <SiteDataPanel
+              siteName={filteredSite} 
+              siteData={this.props.allSiteData[filteredSite]}
+              key={index}
             />
           );
         })}

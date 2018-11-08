@@ -8,11 +8,12 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // Routes for API calls
-app.get('/api/wpengine', function(req, res) {
+app.get('/api/wpengine/:offset', function(req, res) {
   const authorization = 'Basic ' + Buffer.from(process.env.WPENGINE_AUTH).toString('base64');
-  const wpengineInstalls = process.env.WPENGINE_INSTALLS;
+  const offset = req.params.offset;
+  const wpengineInstalls = process.env.WPENGINE_INSTALLS.concat(offset);
 
-  let responseBody = 'Nothing returned.'; 
+  let responseBody = 'Nothing returned.';
 
   const getWPengineData = async url => {
     try {
@@ -23,6 +24,7 @@ app.get('/api/wpengine', function(req, res) {
         } 
       });
       responseBody = await wpengineResponse.json();
+      console.log('WPEngine response: ', responseBody)
       res.send(responseBody);
     } catch (error) {
       console.log(error);
@@ -38,6 +40,8 @@ app.get('/api/wpengine', function(req, res) {
 
   getWPengineData(wpengineInstalls);
 });
+
+
 
 app.get('/api/codebase', function(req, res) {
   const codebaseURL = process.env.CODEBASE_URL.concat('?key=', process.env.CODEBASE_API_KEY);
@@ -83,7 +87,6 @@ app.get('/api/cloudflare', function(req, res) {
       });
 
       responseBody = await response.json();
-      console.log("cloudflare response: ", responseBody);
       res.send(responseBody);
     } catch(error) {
       res.send({
